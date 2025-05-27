@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Generative Chatbot</title>
+  <style>
+    body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to bottom right, #d1e2ff, #e3f1ff);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 90px;
+}
+
+header {
+  background-color: #f7c5ef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  height: 80px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collapse,
+.menu-icon {
+  background-color: transparent;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Style ONLY the collapse button */
+button.collapse {
+  background-color: transparent;
+  border: 2px solid black;
+  color: black;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.menu-icon img {
+  height: 22px;
+  cursor: pointer;
+}
+
+.chat-container {
+  flex: 1;
+  padding: 20px 20px 60px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.bot-message {
+  align-self: flex-start;
+  background-color: #f5f5f9;
+  color: #000;
+  padding: 12px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #005eff;
+  color: white;
+  padding: 12px;
+  border-radius: 18px;
+  margin-bottom: 12px;
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  max-width: 70%;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  line-height: 1.6;
+}
+
+.message p {
+  margin: 10px 0;
+  font-size: 16px;
+  white-space: pre-wrap;
+}
+
+.message ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-left: 0;
+}
+
+.message li {
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* INPUT AREA STYLING */
+.input-area {
+  display: flex;
+  padding: 10px;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Wrapper to hold input and speech button */
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.input-wrapper input {
+  width: 90%;
+  padding: 10px 44px 10px 14px; /* extra right padding for button */
+  font-size: 16px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+/* Speech Button inside input */
+.speech-btn {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  height: 24px;
+  width: 24px;
+}
+
+.speech-btn img.speech-icon {
+  height: 20px;
+  width: 20px;
+}
+
+/* Send Button beside input */
+button.send-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.send-icon {
+  height: 30px;
+  width: 30px;
+}
+
+.footer {
+  text-align: center;
+  font-size: 13px;
+  color: #0c0c0c;
+  padding: 10px;
+}
+
+.footer img {
+  height: 26px;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+
+.options {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.option-btn {
+  background-color: #fff;
+  border: 2px solid #005eff;
+  color: #005eff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.option-btn:hover {
+  background-color: #005eff;
+  color: white;
+}
+
+.menu {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.menu button {
+  background: none;
+  border: none;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background-color: #f0f0f0;
+}
+
+.popup-message {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  text-align: center;
+  font-size: 18px;
+}
+
+  </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+          <img src="/images/logo.png" alt="Logo" class="logo">
+        </div>
+        
+        <div style="flex: 2; text-align: center;">
+          <h1 style="font-family: 'Cursive', sans-serif; font-weight: bold; font-size: 40px; margin: 0;">Generative Chatbot</h1>
+        </div>
+        <div class="header-right">
+          
+          <button class="menu-icon" onclick="toggleMenu()">
+            <img src="/images/t.png" alt="Menu Icon" />
+          </button>
+          <button class="collapse" onclick="showPopup()">X</button>
+        </div>
+        <div class="menu" id="menu">
+          <button onclick="clearChat()">Clear Chat</button>
+          <!-- <button onclick="historyDisplay()">History Display</button> -->
+        </div>
+    </header>
+    
+    <div class="chat-container" id="chat-container">
+        <div class="options" id="optionList"></div>
+    </div>
+    
+  <div class="input-area">
+  <div class="input-wrapper">
+    <input type="text" id="user-input" placeholder="Ask me anything..." />
+    <!-- <button class="speech-btn" onclick="startSpeechRecognition()">
+      <img src="/images/speech.png" alt="Speech-to-Text" class="speech-icon" />
+    </button> -->
+  </div>
+  <button class="send-btn" onclick="sendMessage()">
+    <img src="/images/imagee.png" alt="Send" class="send-icon" />
+  </button>
+</div>
+
+  
+    
+    <div class="footer">
+        Powered by OpenEyes Software Solution <img src="/images/logo.png" alt="OpenEyes">
+    </div>
+    
+    <div class="popup-message" id="popup">
+        <p>Thank you for chatting with us! Have a great day 😊</p>
+        <button onclick="window.location.href='/'">Go to Home</button>
+    </div> 
+    
+  <script>
+    // Speech Recognition Setup
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+      recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = function() {
+        console.log("Speech recognition started");
+      }
+
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('user-input').value = transcript;
+        sendMessage();  // Automatically send the message after speech recognition
+      }
+
+      recognition.onerror = function(event) {
+        console.log("Speech recognition error", event);
+      }
+
+      recognition.onend = function() {
+        console.log("Speech recognition ended");
+      }
+    }
+
+    // Function to start speech recognition
+    function startSpeechRecognition() {
+      if (recognition) {
+        recognition.start(); // Start listening to the user
+      } else {
+        alert("Your browser does not support speech recognition.");
+      }
+    }
+
+    // Listen for 'Enter' key to send the message
+    document.getElementById('user-input').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();  // Prevent default action (line break in the input)
+        sendMessage();
+      }
+    });
+
+    // Function to append messages to the chat container
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.classList.add('message', sender === 'bot' ? 'bot-message' : 'user-message');
+      text = text.replace(/\*\*/g, "");
+
+      // Check if the message is a list and format it
+      if (text.includes("-")) {
+        const ul = document.createElement('ul');
+        ul.style.listStyleType = "none"; // Remove bullet points
+        const lines = text.split("\n");
+        lines.forEach(line => {
+          if (line.trim()) {
+            const li = document.createElement('li');
+            li.innerHTML = line.trim();
+            ul.appendChild(li);
+          }
+        });
+        msg.appendChild(ul);
+      } else {
+        msg.innerHTML = `<div>${text}</div>`;
+      }
+
+      document.getElementById('chat-container').appendChild(msg);
+      document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+    }
+
+    // Send message and handle input
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      appendMessage(userText, 'user');
+      input.value = "";  // Clear input field
+
+      // Show typing indicator
+      const typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.innerText = 'Bot is typing...';
+      typing.id = 'typing-indicator';
+      document.getElementById('chat-container').appendChild(typing);
+      document.getElementById('chat-container').scrollTop = document.getElementById('chat-container').scrollHeight;
+
+      // Send query to the backend
+      await sendQueryBasedOnOption('user_input', userText);
+
+      const typingIndicator = document.getElementById('typing-indicator');
+      if (typingIndicator) typingIndicator.remove();
+    }
+
+    // Handle query based on the type of input
+    async function sendQueryBasedOnOption(type, query) {
+      switch (type) {
+        case 'user_input':
+          await fetchPinecone(query);
+          break;
+        default:
+          appendMessage("Unknown input type.", 'bot');
+      }
+    }
+
+    // Fetch response from Pinecone
+    async function fetchPinecone(query) {
+      try {
+        const response = await fetch('/pinecone_search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+
+        const data = await response.json();
+        const botResponse = data.response || "Sorry, I couldn't find anything. Could you rephrase?";
+        appendMessage(botResponse, 'bot');
+      } catch (error) {
+        appendMessage("Oops, something went wrong. Please try again later.", 'bot');
+      }
+    }
+
+    // Show initial bot message when the page loads
+    window.onload = () => {
+      setTimeout(() => {
+        appendMessage("How can we help you today?", 'bot');
+      }, 500);
+    };
+
+  </script>
+  
+</body>
+</html>
+
